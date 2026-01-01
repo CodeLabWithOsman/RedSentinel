@@ -8,6 +8,7 @@ sys.path.append(BASE_DIR)
 from core.exploit_engine import simulate
 from core.analyzer import analyze_file
 from core.planner import generate_plan
+from core.reporter import generate_report
 
 
 def clear():
@@ -42,7 +43,9 @@ def launch_menu():
 [2] Analyze Scan / Logs
 [3] Generate Red Team Plan
 [4] Simulate Exploit (SAFE)
-[5] Exit
+[5] Generate Report
+[6] Exit
+
 """)
 
         choice = input("RedSentinel > ").strip()
@@ -86,6 +89,48 @@ def launch_menu():
             vuln = input("\nEnter simulation key: ").strip()
             simulate(vuln)
             pause()
+
+	        elif choice == "5":
+            clear()
+            print("[+] Generating Red Team Report\n")
+
+            target = input("Target name: ").strip()
+
+            # PLACEHOLDERS (Step 3 will auto-fill these)
+            analysis_results = [
+                "Missing X-Frame-Options header",
+                "Missing X-Content-Type-Options header"
+            ]
+
+            simulations = [
+                "Clickjacking (Simulated)",
+                "MIME Sniffing (Simulated)"
+            ]
+
+            plan = [
+                "Enumerate HTTP security headers",
+                "Assess user interaction risks",
+                "Correlate findings with MITRE ATT&CK",
+                "Prepare remediation guidance"
+            ]
+
+            report_path = generate_report(
+                target,
+                analysis_results,
+                simulations,
+                plan
+            )
+
+            print(f"\n[+] Report generated: {report_path}")
+            pause()
+
+        elif choice == "6":
+            print("\nExiting RedSentinel...")
+            sys.exit(0)
+
+
+
+
 
         # ---------------- EXIT ----------------
         elif choice == "5":
