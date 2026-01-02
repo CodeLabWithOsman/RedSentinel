@@ -1,180 +1,172 @@
-# 🔴 RedSentinel
+# RedSentinel 🟥
 
-**AI-Assisted Red Team Simulation & Web Security Analysis Tool**
-*Educational & Research Use*
+AI‑Assisted Red / Purple Team Simulation & Analysis Framework
 
-RedSentinel is a Python-based, AI-assisted red team simulation tool designed to help cybersecurity students and researchers understand how common web vulnerabilities are discovered, analyzed, and reported — **without performing real exploitation**.
-
-The project focuses on **simulation, analysis, and reporting**, making it suitable for learning offensive security concepts in a controlled and ethical way.
+> **Educational & research use only** — RedSentinel supports both **offline analysis** and **controlled live testing**, depending on the selected mode.
 
 ---
 
-##  Features
+## 🔍 What RedSentinel Is
 
-* 🌐 **Target-Based Simulation**
+RedSentinel is a **modular security analysis and attack‑path simulation tool** designed to help:
 
-  * Simulates vulnerability discovery for a given domain
-  * Designed for educational web security analysis
+* Security students
+* SOC analysts
+* Blue / Purple teams
 
-*  **AI-Assisted Analysis**
+understand how vulnerabilities, misconfigurations, and logs can be **correlated into realistic attack paths**.
 
-  * Maps simulated findings to common vulnerability categories
-  * Severity classification (Low / Medium / High / Critical)
-
-*  **Risk Visualization**
-
-  * Severity distribution charts
-  * Risk beatmap / severity overview
-
-*  **Professional Reporting**
-
-  * HTML-based report generation
-  * PDF export support (HTML → PDF pipeline)
-  * Clean, SOC-style layout suitable for presentations
-
-*  **CLI-Based Workflow**
-
-  * Simple command-line interface
-  * Designed to be extendable and beginner-friendly
+It supports **multiple operational modes**, each doing a *different thing*, via an interactive menu or direct CLI usage.
 
 ---
 
-##  Project Structure
+## ⚙️ Core Capabilities
 
-```text
-RedSentinel/
-├── assets/
-││   └── risk_beatmap.png
-│
-├── reports/
-│   ├── report.html
-│   └── report.pdf
-│
-├── core/
-│   ├── simulator.py
-│   ├── analyzer.py
-│   └── report_generator.py
-│
-├── main.py
-├── requirements.txt
-└── README.md
+### 1️⃣ Log & Scan Analysis (Offline)
+
+* Parses existing scan outputs (e.g. Nikto)
+* Analyzes logs and findings
+* Assigns CVSS‑style risk scoring
+* Builds attack paths **without executing exploits**
+
+### 2️⃣ Attack Plan Generation (Simulation)
+
+* Generates **theoretical exploit chains**
+* Maps attacker steps, prerequisites, and impact
+* No payloads executed
+* Safe for academic and defensive environments
+
+### 3️⃣ Live Testing (Controlled)
+
+* Optional **live analysis mode**
+* Target‑based testing when explicitly selected
+* Intended for labs, owned systems, or permission‑based targets only
+
+⚠️ **Nothing runs live unless the user explicitly chooses it**
+
+### 4️⃣ Exploit‑Driven Reporting
+
+* Exploit logic is used to:
+
+  * Explain feasibility
+  * Demonstrate impact
+* **Only this mode generates PDF reports**
+
+### 5️⃣ Reporting Engine
+
+* HTML reports (default)
+* PDF reports (exploit mode only)
+* Risk heatmaps & summaries
+
+---
+
+## Interactive Menu
+
+RedSentinel includes an interactive menu that lets you choose exactly what you want to do:
+
+* Log / scan analysis
+* Attack plan simulation
+* Live testing (explicit)
+* Exploit analysis + PDF reporting
+
+Each menu option triggers a **different execution path** internally.
+
+---
+
+##  Example CLI Usage
+
+```bash
+python3 -m redsentinel.cli menu
 ```
 
-> ⚠️ Structure may evolve as new modules are added.
+Depending on the selected mode, this may:
+
+* Analyze existing scan/log inputs
+* Simulate an attack plan
+* Perform controlled live checks
 
 ---
 
-##  Getting Started
+## 📂 Project Structure
 
-### 1️⃣ Clone the Repository
+```
+redsentinel
+├── cli.py                # CLI entry point
+├── menu.py               # Interactive menu system
+├── core/
+│   ├── analyzer.py       # Log & scan analysis
+│   ├── planner.py        # Attack path planning
+│   ├── exploit_engine.py # Exploit reasoning
+│   ├── advisor.py        # Mitigation guidance
+│   ├── cvss.py           # Risk scoring
+│   ├── reporter.py       # Report orchestration
+│   ├── html_reporter.py  # HTML reports
+│   ├── pdf_reporter.py   # PDF reports (exploit mode)
+│   ├── risk.py
+│   ├── risk_heatmap.py
+│   ├── simulator.py
+│   └── state.py
+├── assets/
+│   └── risk_heatmap.png
+├── samples/
+│   └── nikto.txt
+├── templates/
+│   └── report.html
+├── test-lab/
+│   ├── inputs
+│   ├── outputs
+│   └── reports
+└── reports/
+```
+
+---
+
+## 🧪 Testing
+
+Pytest is used to validate:
+
+* Analyzer logic
+* Planner correctness
+* Risk scoring consistency
+
+```bash
+pytest
+```
+
+---
+
+##  Installation (Editable / Dev)
 
 ```bash
 git clone https://github.com/hackura/RedSentinel.git
 cd RedSentinel
-```
-
-### 2️⃣ Install Dependencies
-
-```bash
 pip install -r requirements.txt
-```
-
-### 3️⃣ Run RedSentinel
-
-```bash
-python main.py --target example.com
+pip install -e .
 ```
 
 ---
 
-## 🧪 What RedSentinel Does (and Does NOT)
+##  Disclaimer
 
-### ✅ What It Does
+RedSentinel is intended for:
 
-* Simulates vulnerability discovery
-* Performs **non-intrusive** analysis
-* Generates structured security reports
-* Helps users learn red team workflows
+* Education
+* Research
+* Authorized testing only
 
-### ❌ What It Does NOT
-
-* Perform real exploitation
-* Bypass authentication systems
-* Attack live systems
-* Replace professional penetration testing tools
+You are responsible for ensuring you have **explicit permission** before performing any live testing.
 
 ---
 
-## 📊 Sample Output
+## 🧠 Roadmap
 
-* Simulated vulnerability findings
-* Severity breakdown charts
-* Risk overview visuals
-* HTML & PDF security reports
-
-Example CLI output:
-
-```text
-[+] Simulating vulnerability discovery for: example.com
-[+] Simulation completed
-[+] Report generated successfully
-```
+* BlueSentinel (defensive correlation)
+* SIEM‑style log ingestion
+* MITRE ATT&CK mapping
+* Web UI
+* Plugin‑based scanners
 
 ---
 
-## 🎓 Intended Audience
-
-* Cybersecurity students
-* Blue team & red team learners
-* SOC analysts in training
-* Researchers exploring AI-assisted security tooling
-
----
-
-## ⚖️ Legal & Ethical Disclaimer
-
-RedSentinel is **strictly for educational and research purposes**.
-
-> ⚠️ Do **NOT** use this tool against systems you do not own or have explicit permission to test.
-
-The authors assume **no liability** for misuse or damages caused by this project.
-
----
-
-## 🧠 Roadmap (Planned)
-
-* [ ] Improved HTML report templates
-* [ ] Modular vulnerability plugins
-* [ ] CVSS-style scoring
-* [ ] Blue team integration (future BlueSentinel)
-* [ ] Dashboard-based visualization
-
----
-
-## 🤝 Contributing
-
-Contributions are welcome!
-
-1. Fork the repository
-2. Create a feature branch
-3. Commit your changes
-4. Open a Pull Request
-
----
-
-## 📜 License
-
-This project is released under the **MIT License**.
-
----
-
-## 👤 Author
-
-**Karl Seyram (hackura)**
-Cybersecurity Student | AI Security Research
-GitHub: [https://github.com/hackura](Me)
-
----
-
-> *“Learn the attacker mindset — without becoming one.”*
+Built with 🟥 by **Hackura / Karl Seyram**
 

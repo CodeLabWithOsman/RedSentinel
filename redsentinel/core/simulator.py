@@ -121,3 +121,14 @@ def parse_nikto(output: str):
 
     return findings
 
+def run_simulation(target):
+    findings = [
+        {"name": "Missing Security Headers"},
+        {"name": "Server Information Disclosure"}
+    ]
+
+    return {
+        "target": target,
+        "findings": findings
+    }
+
