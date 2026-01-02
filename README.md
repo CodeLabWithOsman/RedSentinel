@@ -22,7 +22,7 @@
 
 ---
 
-## 🔴 What is RedSentinel?
+##  What is RedSentinel?
 
 **RedSentinel** is an **AI-assisted security assessment tool** designed for
 **educational, defensive, and research-focused security testing**.
@@ -37,11 +37,11 @@ for:
 * Auditors
 * Executives
 
-> ⚠️ **RedSentinel must only be used on systems you own or have explicit authorization to test.**
+>  **RedSentinel must only be used on systems you own or have explicit authorization to test.**
 
 ---
 
-## 🚀 Key Features
+##  Key Features
 
 * Live execution of common security tools:
 
@@ -59,7 +59,7 @@ for:
 
 ---
 
-## 🧰 Requirements
+##  Requirements
 
 * **Python 3.10+**
 * Linux-based OS (Kali, Debian, Ubuntu, or Termux)
@@ -91,7 +91,7 @@ pkg install cairo pango libffi
 
 ---
 
-## 📦 Installation
+##  Installation
 
 ```bash
 git clone https://github.com/hackura/RedSentinel.git
@@ -105,7 +105,7 @@ pip install .
 
 ---
 
-## 🔐 AI Configuration (Optional)
+##  AI Configuration (Optional)
 
 To enable AI-generated explanations and remediation guidance, create a `.env`
 file in the project root:
@@ -115,11 +115,11 @@ REDSENTINEL_AI_KEY=your_api_key_here
 REDSENTINEL_AI_URL=https://api.openai.com/v1/chat/completions
 ```
 
-> ⚠️ Never commit `.env` to GitHub.
+>  Never commit `.env` to GitHub.
 
 ---
 
-## ▶️ Usage
+##  Usage
 
 Run the interactive CLI:
 
@@ -137,7 +137,7 @@ All reports are saved in the `reports/` directory.
 
 ---
 
-## 📊 Output Formats
+##  Output Formats
 
 * **Terminal Output** – Live findings with severity and confidence
 * **HTML Report** – Executive-friendly assessment
@@ -146,7 +146,7 @@ All reports are saved in the `reports/` directory.
 
 ---
 
-## 🤝 Contributing
+## Contributing
 
 Contributions are **welcome** and **appreciated**.
 
@@ -169,7 +169,7 @@ All contributions must remain **non-intrusive and defensive**.
 
 ---
 
-## 🛣️ Roadmap
+##  Roadmap
 
 Planned future enhancements:
 
@@ -186,18 +186,18 @@ Ideas and feedback are welcome via issues or discussions.
 
 ---
 
-## ❤️ Support the Project
+##  Support the Project
 
 If RedSentinel helps you learn or work better:
 
-* ⭐ Star the repository
-* ☕ Donate: [https://buymeacoffee.com/hackura](BuyMeACoffee)
+* Star the repository
+* Donate: [https://buymeacoffee.com/hackura](BuyMeACoffee)
 * Share the project
 * Contribute code or documentation
 
 ---
 
-## 🌐 Connect
+##  Connect
 
 * GitHub: [https://github.com/hackura](GitHub)
 * Twitter / X: [https://twitter.com/dorpe_karl](X)
@@ -206,14 +206,14 @@ If RedSentinel helps you learn or work better:
 
 ---
 
-## ⚖️ Disclaimer
+##  Disclaimer
 
 RedSentinel is provided for **educational and defensive security research only**.
 The author assumes no responsibility for misuse or unauthorized testing.
 
 ---
 
-## 🧑‍💻 Author
+##  Author
 
 **Karl Seyram**
 Hackura Project
