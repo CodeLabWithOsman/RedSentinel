@@ -1,0 +1,7 @@
+requests
+jinja2
+matplotlib
+numpy
+weasyprint
+rich
+argparse

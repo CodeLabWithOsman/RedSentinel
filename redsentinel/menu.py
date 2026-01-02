@@ -1,85 +1,93 @@
-import os
+#!/usr/bin/env python3
+"""
+RedSentinel - Interactive CLI Menu
+AI-Assisted Red Team Simulation Framework (Educational)
+"""
+
+import time
 import sys
 
 from redsentinel.core.analyzer import analyze_file
 from redsentinel.core.planner import generate_plan
-from redsentinel.core.exploit_engine import simulate
-from redsentinel.core.reporter import generate_report
-from redsentinel.core.state import STATE, reset
+from redsentinel.core.simulator import simulate_scan
 
 
-def clear():
-    os.system("clear" if os.name == "posix" else "cls")
+BANNER = r"""
+██████╗ ███████╗██████╗ ███████╗███████╗███╗   ██╗████████╗██╗███╗   ██╗███████╗██╗
+██╔══██╗██╔════╝██╔══██╗██╔════╝██╔════╝████╗  ██║╚══██╔══╝██║████╗  ██║██╔════╝██║
+██████╔╝█████╗  ██║  ██║███████╗█████╗  ██╔██╗ ██║   ██║   ██║██╔██╗ ██║█████╗  ██║
+██╔══██╗██╔══╝  ██║  ██║╚════██║██╔══╝  ██║╚██╗██║   ██║   ██║██║╚██╗██║██╔══╝  ██║
+██║  ██║███████╗██████╔╝███████║███████╗██   ████║   ██║   ██║██║ ╚████║███████╗███████╗
+╚═╝  ╚═╝╚══════╝╚═════╝ ╚══════╝╚══════╝╚════╝╚═╝  ╚═══╝   ╚═╝   ╚═╝╚═╝  ╚═══╝╚══════╝╚══════╝
+"""
+
+SUBTITLE = "AI-Assisted Red Team Simulation Framework"
 
 
 def pause():
-    input("\nPress Enter to continue...")
+    input("\n[Press ENTER to continue]")
 
 
-def banner():
-    print(r"""
-██████╗ ███████╗██████╗ ███████╗███████╗███████╗███╗   ██╗████████╗██╗
-██╔══██╗██╔════╝██╔══██╗██╔════╝██╔════╝██╔════╝████╗  ██║╚══██╔══╝██║
-██████╔╝█████╗  ██║  ██║███████╗█████╗  █████╗  ██╔██╗ ██║   ██║   ██║
-██╔══██╗██╔══╝  ██║  ██║╚════██║██╔══╝  ██╔══╝  ██║╚██╗██║   ██║   ██║
-██║  ██║███████╗██████╔╝███████║███████╗███████╗██║ ╚████║   ██║   ██║
-╚═╝  ╚═╝╚══════╝╚═════╝ ╚══════╝╚══════╝╚══════╝╚═╝  ╚═══╝   ╚═╝   ╚═╝
-
- RedSentinel – AI-Assisted Red Team Framework
-""")
+def print_menu():
+    print("\nSelect an action:\n")
+    print("  1. Analyze Scan / Log File")
+    print("  2. Generate Attack Plan")
+    print("  3. Simulate Vulnerability Scan")
+    print("  4. Exit")
 
 
 def launch_menu():
     while True:
-        clear()
-        banner()
+        print("\033c", end="")  # clear screen
+        print(BANNER)
+        print(SUBTITLE)
+        print("-" * 60)
 
-        print("""
-[1] New Assessment
-[2] Analyze Scan / Logs
-[3] Generate Red Team Plan
-[4] Simulate Exploit
-[5] Generate Report
-[6] Exit
-""")
+        print_menu()
+        choice = input("\nRedSentinel > ").strip()
 
-        choice = input("RedSentinel > ").strip()
-
-        if choice == "1":
-            reset()
-            print("[+] Assessment reset")
-            pause()
-
-        elif choice == "2":
-            file_path = input("Enter scan/log file path: ").strip()
-            if os.path.exists(file_path):
-                analyze_file(file_path)
-            else:
-                print("[!] File not found")
-            pause()
-
-        elif choice == "3":
-            target = input("Enter target: ").strip()
-            generate_plan(target)
-            pause()
-
-        elif choice == "4":
-            target = input("Enter target: ").strip()
-            from redsentinel.core.simulator import simulate_scan
-            simulate_scan(target)
-
-        elif choice == "5":
-            if not STATE["findings"]:
-                print("[!] No findings available")
-            else:
-                report = generate_report()
-                print(f"[+] Report generated: {report}")
-            pause()
-
-        elif choice == "6":
+        # EXIT
+        if choice == "4":
+            print("\n[+] Exiting RedSentinel. Stay sharp ")
             sys.exit(0)
 
+        
+        # ANALYZE
+        elif choice == "1":
+            file_path = input("\nEnter scan/log file path: ").strip()
+            print("\n[+] Processing input...")
+            time.sleep(1)
+            try:
+                analyze_file(file_path)
+            except Exception as e:
+                print(f"[!] Analysis failed: {e}")
+            pause()
+
+        # PLAN
+        elif choice == "2":
+            target = input("\nEnter target: ").strip()
+            print("\n[+] Generating AI-assisted attack plan...")
+            time.sleep(1)
+            try:
+                generate_plan(target, framework="mitre")
+            except Exception as e:
+                print(f"[!] Planning failed: {e}")
+            pause()
+
+        # SIMULATE
+        elif choice == "3":
+            target = input("\nEnter target: ").strip()
+            print(f"\n[+] Simulating reconnaissance and vulnerability discovery for: {target}")
+            print("[*] AI agent is analyzing the attack surface...\n")
+            try:
+                simulate_scan(target)
+            except KeyboardInterrupt:
+                print("\n[!] Simulation interrupted by user.")
+            except Exception as e:
+                print(f"[!] Simulation failed: {e}")
+            pause()
+
         else:
-            print("[!] Invalid option")
+            print("\n[!] Invalid option.")
             pause()
 

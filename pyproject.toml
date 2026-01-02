@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=77.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "redsentinel"
+version = "0.1.0"
+description = "AI-Assisted Red Team Simulation & Web Security Analysis Tool"
+readme = "README.md"
+license = "MIT"
+authors = [
+    { name = "Karl Seyram", email = "hackura@users.noreply.github.com" }
+]
+keywords = ["cybersecurity", "pentesting", "red-team", "security", "ai"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Intended Audience :: Education",
+    "Topic :: Security"
+]
+requires-python = ">=3.9"
+
+dependencies = [
+    "requests",
+    "jinja2",
+    "matplotlib",
+    "numpy",
+    "weasyprint",
+    "rich"
+]
+
+[project.scripts]
+redsentinel = "redsentinel.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["redsentinel*"]
+

@@ -1,50 +1,29 @@
-#!/usr/bin/env python3
+import sys
+from redsentinel.menu import launch_menu
 
-import argparse
-import os
 
-def init_project(name: str):
-    """
-    Initialize a new RedSentinel project workspace.
-    """
-    folders = ["inputs", "outputs", "reports"]
+def check_venv():
+    if sys.prefix == sys.base_prefix:
+        print("""
+[!] WARNING: You are NOT running inside a Python virtual environment.
 
-    print(f"[+] Initializing RedSentinel project: {name}")
+PDF reporting requires third-party libraries (reportlab).
+On Kali Linux, installing them system-wide is blocked.
 
-    for folder in folders:
-        path = os.path.join(name, folder)
-        os.makedirs(path, exist_ok=True)
-        print(f"    └── created {path}")
+RECOMMENDED FIX:
+    python3 -m venv venv
+    source venv/bin/activate
+    pip install -r requirements.txt
 
-    print("[+] Project initialized successfully.")
+RedSentinel will continue, but PDF generation may fail.
+""")
 
 
 def main():
-    parser = argparse.ArgumentParser(
-        prog="redsentinel",
-        description="RedSentinel - AI-assisted red team CLI (authorized use only)"
-    )
-
-    subparsers = parser.add_subparsers(dest="command")
-
-    # init command
-    init_parser = subparsers.add_parser(
-        "init",
-        help="Initialize a new RedSentinel project"
-    )
-    init_parser.add_argument(
-        "--name",
-        required=True,
-        help="Name of the project directory"
-    )
-
-    args = parser.parse_args()
-
-    if args.command == "init":
-        init_project(args.name)
-    else:
-        parser.print_help()
+    check_venv()
+    launch_menu()
 
 
 if __name__ == "__main__":
     main()
+

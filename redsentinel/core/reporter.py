@@ -1,88 +1,43 @@
-import os
+"""
+Pentest report generator
+"""
+
 from datetime import datetime
+from redsentinel.core.state import STATE
 
 
-REPORT_DIR = "reports"
+def generate_report():
+    if not STATE["target"]:
+        print("[!] No target set. Cannot generate report.")
+        return
 
+    report = []
+    report.append("# RedSentinel Pentest Report\n")
+    report.append(f"**Target:** {STATE['target']}\n")
+    report.append(f"**Date:** {datetime.utcnow()} UTC\n")
 
-def ensure_report_dir():
-    if not os.path.exists(REPORT_DIR):
-        os.makedirs(REPORT_DIR)
+    report.append("\n## Findings\n")
+    for f in STATE["findings"]:
+        report.append(f"- {f}")
 
+    report.append("\n## Vulnerabilities & Risk\n")
+    for name, data in STATE["risk"].items():
+        report.append(f"- **{name}**: {data['severity']} (Score: {data['score']})")
 
-def generate_report(
-    target: str,
-    analysis_results: list,
-    simulations: list,
-    plan: list
-):
-    """
-    Generate a professional Markdown red team report.
-    """
+    report.append("\n## Conclusion\n")
+    report.append(
+        "The identified issues indicate potential security weaknesses that "
+        "should be addressed based on risk priority."
+    )
 
-    ensure_report_dir()
+    final_report = "\n".join(report)
+    STATE["report"] = final_report
 
-    timestamp = datetime.utcnow().strftime("%Y-%m-%d_%H-%M-%S")
-    filename = f"{REPORT_DIR}/RedSentinel_Report_{target}_{timestamp}.md"
+    with open("report.md", "w") as f:
+        f.write(final_report)
 
-    with open(filename, "w") as f:
-        # ---------------- HEADER ----------------
-        f.write(f"# Red Team Assessment Report\n\n")
-        f.write(f"**Target:** {target}\n\n")
-        f.write(f"**Date:** {datetime.utcnow().strftime('%Y-%m-%d')}\n")
-        f.write(f"**Framework:** RedSentinel (AI-Assisted)\n\n")
-        f.write("---\n\n")
-
-        # ---------------- EXEC SUMMARY ----------------
-        f.write("## Executive Summary\n\n")
-        f.write(
-            "This assessment identifies security weaknesses based on "
-            "static analysis and safe exploit simulations. No active "
-            "exploitation was performed.\n\n"
-        )
-
-        # ---------------- FINDINGS ----------------
-        f.write("## Findings\n\n")
-        if not analysis_results:
-            f.write("- No findings provided\n\n")
-        else:
-            for item in analysis_results:
-                f.write(f"- {item}\n")
-            f.write("\n")
-
-        # ---------------- EXPLOIT SIMULATIONS ----------------
-        f.write("## Exploit Simulations (Safe)\n\n")
-        if not simulations:
-            f.write("- No simulations executed\n\n")
-        else:
-            for sim in simulations:
-                f.write(f"- {sim}\n")
-            f.write("\n")
-
-        # ---------------- ATTACK PLAN ----------------
-        f.write("## Red Team Attack Plan (Theoretical)\n\n")
-        if not plan:
-            f.write("- No attack plan generated\n\n")
-        else:
-            for step in plan:
-                f.write(f"- {step}\n")
-            f.write("\n")
-
-        # ---------------- REMEDIATION ----------------
-        f.write("## Remediation Summary\n\n")
-        f.write(
-            "- Implement missing security headers\n"
-            "- Monitor authentication failures\n"
-            "- Improve logging and alerting\n"
-            "- Perform periodic security testing\n\n"
-        )
-
-        # ---------------- DISCLAIMER ----------------
-        f.write("---\n\n")
-        f.write(
-            "**Disclaimer:** This report is for educational and authorized "
-            "security testing purposes only. No exploitation was performed.\n"
-        )
-
-    return filename
+    print("[+] Pentest report generated.")
+    print("[+] Saved as report.md\n")
+    print("----- REPORT SUMMARY -----")
+    print(final_report)
 
