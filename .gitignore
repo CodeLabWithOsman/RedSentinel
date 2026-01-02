@@ -14,3 +14,6 @@ reports/*.html
 # OS
 .DS_Store
 
+#secrets
+.env
+

@@ -4,22 +4,27 @@
 """
 RedSentinel Simulator – LIVE TOOL EXECUTION
 ------------------------------------------
-This version ACTUALLY runs:
+Runs:
 - ping
 - nmap
 - whatweb
 - nikto
+- httpx (json)
+- sslscan
 
-Then:
-- parses raw output into findings
-- assigns CVSS severity
-- ALWAYS generates HTML + PDF when findings exist
-
-⚠️ Run ONLY on targets you own or have permission to test.
+Features:
+- Proper parsing (fixes "no findings" issue)
+- Terminal output
+- Confidence scoring
+- JSON parsing where supported
+- Termux auto-detection
+- --no-report CLI flag support
 """
 
 import subprocess
 import os
+import sys
+import json
 from dataclasses import dataclass, field
 from typing import Dict, List
 
@@ -27,6 +32,23 @@ from redsentinel.core.cvss import assign_severity
 from redsentinel.core.html_reporter import generate_html_report
 from redsentinel.core.pdf_reporter import generate_pdf_report
 from redsentinel.core.risk_heatmap import generate_risk_heatmap
+from redsentinel.core.normalizer import normalize_findings
+from redsentinel.core.ai_interpreter import generate_remediation_roadmap
+from redsentinel.core.json_exporter import export_json_report
+from redsentinel.core.ai_client import AIClient
+
+
+# =========================
+# Termux detection
+# =========================
+
+def is_termux() -> bool:
+    return "com.termux" in os.environ.get("PREFIX", "").lower()
+
+
+if is_termux():
+    print("[!] Termux detected — ensure tools are installed via pkg")
+    print("[!] PDF generation may be disabled")
 
 
 # =========================
@@ -40,10 +62,11 @@ class SimulationState:
     heatmap: str | None = None
     html_report: str | None = None
     pdf_report: str | None = None
+    json_report: str | None = None
 
 
 # =========================
-# Command runner
+# Command runners
 # =========================
 
 def run_cmd(cmd: list[str], timeout: int = 120) -> str:
@@ -80,20 +103,77 @@ def run_nikto(target: str) -> str:
     return run_cmd(["nikto", "-h", target])
 
 
+def run_httpx_json(target: str) -> List[dict]:
+    try:
+        res = subprocess.run(
+            ["httpx", "-json", "-tech-detect", "-status-code", "-u", target],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.DEVNULL,
+            text=True
+        )
+        return [json.loads(line) for line in res.stdout.splitlines() if line]
+    except Exception:
+        return []
+
+
+def run_sslscan(target: str) -> str:
+    return run_cmd(["sslscan", target])
+
+
 # =========================
-# Naive parsers (expandable)
+# Confidence scoring
+# =========================
+
+def calculate_confidence(tool: str, severity: str) -> float:
+    base = {
+        "CRITICAL": 0.95,
+        "HIGH": 0.85,
+        "MEDIUM": 0.65,
+        "LOW": 0.45,
+        "INFO": 0.30
+    }.get(severity.upper(), 0.4)
+
+    tool_weight = {
+        "nmap": 0.9,
+        "nikto": 0.8,
+        "whatweb": 0.7,
+        "httpx": 0.85,
+        "sslscan": 0.8,
+        "ping": 0.6
+    }.get(tool.lower(), 0.5)
+
+    return round((base + tool_weight) / 2, 2)
+
+
+# =========================
+# Parsers (FIXED)
 # =========================
 
 def parse_output(tool: str, output: str) -> List[str]:
     findings = []
+
     for line in output.splitlines():
+        line = line.strip()
         l = line.lower()
-        if any(x in l for x in [
-            "open", "missing", "not present",
-            "disallowed", "vulnerable", "exposed",
-            "x-frame-options", "x-content-type",
-        ]):
-            findings.append(f"{tool}: {line.strip()}")
+
+        if not line:
+            continue
+
+        if tool == "ping" and "bytes from" in l:
+            findings.append("Host is reachable via ICMP")
+
+        elif tool == "nmap" and "/tcp" in l and "open" in l:
+            findings.append(line)
+
+        elif tool == "nikto" and line.startswith("+"):
+            findings.append(line[1:].strip())
+
+        elif tool == "whatweb" and "[" in line and "]" in line:
+            findings.append(line)
+
+        elif tool == "sslscan" and ("weak" in l or "deprecated" in l):
+            findings.append(line)
+
     return findings
 
 
@@ -105,7 +185,6 @@ def simulate_scan(target: str) -> SimulationState:
     print(f"\n[+] Running live security scan against: {target}\n")
 
     state = SimulationState(target=target)
-
     raw_findings: Dict[str, List[str]] = {}
 
     # ---- Run tools ----
@@ -113,30 +192,65 @@ def simulate_scan(target: str) -> SimulationState:
     raw_findings["nmap"] = parse_output("nmap", run_nmap(target))
     raw_findings["whatweb"] = parse_output("whatweb", run_whatweb(target))
     raw_findings["nikto"] = parse_output("nikto", run_nikto(target))
+    raw_findings["sslscan"] = parse_output("sslscan", run_sslscan(target))
 
-    # ---- Remove empty sections ----
+    # ---- HTTPX JSON ----
+    httpx_items = []
+    for entry in run_httpx_json(target):
+        tech = ", ".join(entry.get("tech", [])) or "Unknown"
+        status = entry.get("status_code")
+        if status:
+            httpx_items.append(f"HTTP {status} | Technologies: {tech}")
+
+    if httpx_items:
+        raw_findings["httpx"] = httpx_items
+
+    # ---- Remove empty ----
     raw_findings = {k: v for k, v in raw_findings.items() if v}
 
     if not raw_findings:
         print("[!] No findings detected by tools")
         return state
 
-    # ---- Enrich with CVSS ----
+    # ---- Enrich + terminal output ----
     enriched: Dict[str, List[dict]] = {}
 
-    for source, items in raw_findings.items():
-        enriched[source] = []
+    print("[+] Findings\n" + "-" * 50)
+
+    for tool, items in raw_findings.items():
+        enriched[tool] = []
+        print(f"\n[{tool.upper()}]")
+
         for item in items:
             severity, score = assign_severity(item)
-            enriched[source].append({
+            confidence = calculate_confidence(tool, severity)
+
+            enriched[tool].append({
                 "data": item,
                 "severity": severity,
                 "cvss": score,
+                "confidence": confidence
             })
+
+            print(
+                f" - {severity} ({score}) | "
+                f"Confidence: {confidence} → {item}"
+            )
 
     state.findings = enriched
 
-    # ---- Reports ----
+    # ---- Normalize + AI interpretation ----
+    normalized = normalize_findings(enriched)
+    roadmap = generate_remediation_roadmap(normalized)
+
+    state.json_report = export_json_report(target, normalized)
+    print("\n[+] JSON report generated:", state.json_report)
+
+    # ---- Report generation ----
+    if "--no-report" in sys.argv:
+        print("\n[!] --no-report enabled — skipping HTML/PDF generation")
+        return state
+
     os.makedirs("reports", exist_ok=True)
 
     state.heatmap = generate_risk_heatmap(enriched, output_dir="reports")
@@ -144,13 +258,19 @@ def simulate_scan(target: str) -> SimulationState:
     state.html_report = generate_html_report(
         target=target,
         findings=enriched,
-        heatmap_path=state.heatmap,
+        normalized_findings=normalized,
+        remediation_roadmap=roadmap,
+        heatmap_path=state.heatmap
     )
 
-    state.pdf_report = generate_pdf_report(state.html_report)
+    if not is_termux():
+        state.pdf_report = generate_pdf_report(state.html_report)
+    else:
+        print("[!] PDF skipped (Termux environment)")
 
-    print("[+] HTML report generated:", state.html_report)
-    print("[+] PDF report generated:", state.pdf_report)
+    print("\n[+] HTML report generated:", state.html_report)
+    if state.pdf_report:
+        print("[+] PDF report generated:", state.pdf_report)
 
     return state
 

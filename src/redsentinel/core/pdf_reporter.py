@@ -1,22 +1,22 @@
-import subprocess
 import os
+from weasyprint import HTML
 
-def generate_pdf_report(html_path: str) -> str:
-    if not html_path or not html_path.endswith(".html"):
-        raise ValueError("Invalid HTML path for PDF generation")
+
+def generate_pdf_report(html_path: str) -> str | None:
+    """
+    Generates PDF from HTML using WeasyPrint
+    """
+
+    if not html_path or not os.path.exists(html_path):
+        print("[!] Invalid HTML path, skipping PDF generation")
+        return None
 
     pdf_path = html_path.replace(".html", ".pdf")
 
     try:
-        subprocess.run(
-            ["wkhtmltopdf", html_path, pdf_path],
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
-            check=True
-        )
+        HTML(filename=html_path, base_url=os.getcwd()).write_pdf(pdf_path)
         print(f"[+] PDF report generated: {pdf_path}")
         return pdf_path
-
     except Exception as e:
         print(f"[!] PDF generation failed: {e}")
         return None

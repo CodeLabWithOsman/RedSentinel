@@ -1,5 +1,16 @@
 import sys
+
+# =========================
+# Load environment variables EARLY
+# =========================
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    print("[!] python-dotenv not installed. Skipping .env loading.")
+
 from redsentinel.menu import launch_menu
+
 
 def ensure_venv():
     if sys.prefix == sys.base_prefix:
@@ -7,9 +18,11 @@ def ensure_venv():
         print("  python -m venv venv && source venv/bin/activate")
         sys.exit(1)
 
+
 def main():
     ensure_venv()
     launch_menu()
+
 
 if __name__ == "__main__":
     main()
