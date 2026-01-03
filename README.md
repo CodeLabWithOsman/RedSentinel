@@ -49,6 +49,13 @@ It is designed for:
 
 ---
 
+## Installation Guide
+
+<p align="center">
+  <video src="assets/redsentinel-video.mp4" width="90%" />
+</p>
+
+---
 ##  Key Features
 
 * Live execution of industry‑standard scanners
