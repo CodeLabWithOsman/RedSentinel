@@ -49,7 +49,7 @@ It is designed for:
 
 ---
 
-## nstallation Guide (Visual Walkthrough)
+## Installation Guide (Visual Walkthrough)
 
 <p align="center"> <img src="assets/redsentinel-demo.gif" width="800" alt="RedSentinel installation walkthrough"/> </p> <p align="center"> <em>Step-by-step installation and first-run demonstration of the RedSentinel CLI.</em> </p>
 
