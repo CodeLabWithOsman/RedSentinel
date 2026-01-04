@@ -78,7 +78,7 @@ reports/
 └── report_karlseyra.json
 ```
 
-These demonstrate RedSentinel’s reporting format and structure.
+These demonstrate RedSentinel's reporting format and structure.
 
 ---
 
@@ -87,19 +87,57 @@ These demonstrate RedSentinel’s reporting format and structure.
 ### Linux / macOS
 
 ```bash
-python -m venv venv
+# For Linux (Debian/Ubuntu):
+# sudo apt update && sudo apt install git nmap nikto whatweb sslscan
+
+# For macOS:
+# brew install git nmap sslscan perl ruby
+# 
+# Manual installation for nikto and whatweb on macOS:
+# cd ~ && git clone https://github.com/sullo/nikto.git
+# echo 'export PATH=$PATH:~/nikto/program' >> ~/.zshrc
+# cd ~ && git clone https://github.com/urbanadventurer/WhatWeb.git
+# echo 'export PATH=$PATH:~/WhatWeb' >> ~/.zshrc
+# source ~/.zshrc
+
+git clone https://github.com/hackura/RedSentinel.git
+cd RedSentinel
+
+python3 -m venv venv
 source venv/bin/activate
-pip install -r requirements.txt
+pip install -e .
 ```
 
 ### Termux (Android)
 
 ```bash
 pkg update && pkg upgrade
-pkg install python git clang openssl libxml2 libxslt
-pkg install nmap nikto whatweb sslscan
+pkg install python git clang openssl libxml2 libxslt golang perl ruby
+pkg install nmap sslscan
+
+# Install httpx
+go install github.com/projectdiscovery/httpx/cmd/httpx@latest
+
+# Install nikto (manual)
+cd ~
+git clone https://github.com/sullo/nikto.git
+echo 'export PATH=$PATH:~/nikto/program' >> ~/.bashrc
+
+# Install whatweb (manual)
+cd ~
+git clone https://github.com/urbanadventurer/WhatWeb.git
+echo 'export PATH=$PATH:~/WhatWeb' >> ~/.bashrc
+
+# Apply PATH changes
+source ~/.bashrc
+
+# Install RedSentinel
+cd ~
+git clone https://github.com/hackura/RedSentinel.git
+cd RedSentinel
+
 pip install --upgrade pip setuptools wheel
-pip install -r requirements.txt
+pip install -e .
 ```
 
 ⚠️ **Termux Notes**
@@ -107,6 +145,8 @@ pip install -r requirements.txt
 * PDF generation may be skipped
 * ICMP may be restricted (nmap uses `-Pn` automatically)
 * Always install tools using `pkg`, not `apt`
+* nikto and whatweb require manual installation from GitHub
+* RedSentinel will skip unavailable tools automatically
 
 ---
 
@@ -189,4 +229,3 @@ The authors are not responsible for misuse.
 
 **RedSentinel — Hackura Project**
 Educational & Research Use Only
-
